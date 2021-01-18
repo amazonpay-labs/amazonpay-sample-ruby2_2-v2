@@ -1,6 +1,6 @@
 
 =begin
-# Performed on Macbook Pro 16 (2019, CPU: 2.3GHz 8-Core Intel Core i9, Memory: 32GB)
+# Performed on Macbook Pro 16 (2019, CPU: 2.3GHz 8-Core Intel Core i9, Memory: 32GB, OpenSSL: 2.8.3)
 # CPU Load: increased about 4% during this performance test
 # Memory: Almost no impact
 # Result: Button signature calculation: about 12 ms, Request signature calculation: about 12 ms

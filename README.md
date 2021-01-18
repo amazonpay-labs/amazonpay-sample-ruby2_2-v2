@@ -6,14 +6,15 @@ http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/in
 Ruby version: 2.0.0 〜 2.2.10  
 ※ 2.3.0以上の方は[こちら](https://github.com/amazonpay-labs/amazonpay-sample-ruby-v2).  
 
-OpenSSL: 下記のコマンドを実行が成功すること.
+OpenSSL: 下記コマンドの実行が成功すること.
 ```sh
 % echo 'Test' | openssl dgst -sha256 -sign '#{privateKeyFile}' -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:20
 XXXXXXXXXXXX.....
 ```
-Note1: '#{privateKeyFile}' → SellerCentralで取得したprivate keyファイルのパス  
-Note2: このコマンドはバイナリデータを返すため、成功すると文字化けしたように見える結果が表示される  
-実行に失敗した場合には、opensslを更新する.  
+注意点１: '#{privateKeyFile}' → SellerCentralで取得したprivate keyファイルのパス  
+注意点２: このコマンドはバイナリデータを返すため、成功すると文字化けしたように見える結果が表示される  
+
+実行に失敗した場合には、opensslを新しいバージョンにupgradeする.  
 
 ## 概要
 本アプリケーションでは、下記のようにAmazon Payでの単純な購入フローを実行するサンプルを提供しています。  

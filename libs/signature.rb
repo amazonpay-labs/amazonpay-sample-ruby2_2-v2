@@ -147,14 +147,14 @@ class AmazonPayClient
     
             canonical_headers = Hash[ headers.map{|k, v| [k.to_s.downcase, v]}.sort_by { |kv| kv[0] } ]
             canonical_header_names = canonical_headers.keys.join(';')
-            canonical_request = <<~EOS.chomp
-                #{method}
-                #{uri.path}
-                #{query}
-                #{canonical_headers.map{|k, v| "#{k}:#{v}"}.join("\n")}
-                
-                #{canonical_header_names}
-                #{hex_and_hash(payload)}
+            canonical_request = <<-EOS.chomp
+#{method}
+#{uri.path}
+#{query}
+#{canonical_headers.map{|k, v| "#{k}:#{v}"}.join("\n")}
+
+#{canonical_header_names}
+#{hex_and_hash(payload)}
             EOS
             signed_headers = "SignedHeaders=#{canonical_header_names}, Signature=#{sign canonical_request}"
             headers['authorization'] = "#{AMAZON_SIGNATURE_ALGORITHM} PublicKeyId=#{@public_key_id}, #{signed_headers}"

@@ -1,3 +1,16 @@
+
+=begin
+# Performed on Macbook Pro 16 (2019, CPU: 2.3GHz 8-Core Intel Core i9, Memory: 32GB)
+# CPU Load: increased about 4% during this performance test
+# Memory: Almost no impact
+# Result: Button signature calculation: about 12 ms, Request signature calculation: about 12 ms
+
+# Log:
+% ruby performance_test.rb 
+The elapled time for calculating button signature 500 times: 5.840118999942206 seconds, average: 0.011680237999884411 seconds
+The elapled time for calculating request signature 500 times: 5.933503000065684 seconds, average: 0.011867006000131368 seconds
+=end
+
 require '../keys/keyinfo'
 require './signature'
 
@@ -18,18 +31,12 @@ result = Benchmark.realtime do
         client.generate_button_signature("{\"webCheckoutDetails\":{\"checkoutReviewReturnUrl\":\"http://localhost:4567/review/#{i.to_s}\"},\"storeId\":\"amzn1.application-oa2-client.242a859efb5f47f09847f3f0aebd50ca\"}")
     end
 end
-puts "ボタンシグニチャ計算 500回実行時時間: #{result}秒, 1回平均: #{result / 500}秒"
+puts "The elapled time for calculating button signature 500 times: #{result} seconds, average: #{result / 500} seconds"
 
 result = Benchmark.realtime do
     500.times do |i|
         client.generate_button_signature("AMZN-PAY-RSASSA-PSS\nc5c55b2d523738b72c0b96f6d5e0d712d9496573490125b191eeb6840c052f" + i.to_s)
     end
 end
-puts "リクエストシグニチャ計算 500回実行時時間: #{result}秒, 1回平均: #{result / 500}秒"
+puts "The elapled time for calculating request signature 500 times: #{result} seconds, average: #{result / 500} seconds"
 
-
-=begin
-% ruby performance_test.rb
-ボタンシグニチャ計算 500回実行時時間: 6.202556999982335秒, 1回平均: 0.012405113999964669秒
-リクエストシグニチャ計算 500回実行時時間: 6.289648000034504秒, 1回平均: 0.012579296000069008秒
-=end

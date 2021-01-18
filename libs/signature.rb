@@ -5,17 +5,27 @@ A sample code for calling Amazon Pay API version 2 in Ruby.
 See: http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/introduction.html  
 
 # Requires
-...
+Ruby version: from 2.0.0 to 2.2.10.  
+If your Ruby version is higher than 2.2.10, go to the page, https://github.com/amazonpay-labs/amazonpay-sample-ruby-v2.
+
+OpenSSL: try to perform the command below. 
+```sh
+% echo 'Test' | openssl dgst -sha256 -sign '#{privateKeyFile}' -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:20
+XXXXXXXXXXXX.....
+```
+Note1: '#{privateKeyFile}' -> The path of the private key file you obtained at seller central.  
+Note2: This command returns binary data, so you'll see the result which seems like garbled.  
+If it's failed, please install new version of openssl.  
 
 # How to use  
 At first, instantiate AmazonPayClient like below:  
 
 ```ruby
     client = AmazonPayClient.new {
-        public_key_id: 'XXXXXXXXXXXXXXXXXXXXXXXX', # the publick key ID you obtained at seller central
-        private_key: File.read('./privateKey.pem'), # the private key you obtained at seller central
-        region: 'jp', # you can specify 'na', 'eu' or 'jp'.
-        sandbox: true
+        :public_key_id => 'XXXXXXXXXXXXXXXXXXXXXXXX', # the publick key ID you obtained at seller central
+        :private_key_path => './keys/privateKey.pem', # the file path of the private key you obtained at seller central
+        :region => 'jp', # you can specify 'na', 'eu' or 'jp'.
+        :sandbox => true
     }
 ```
 
@@ -28,10 +38,10 @@ Example:
 
 ```ruby
     signature = client.generate_button_signature {
-        webCheckoutDetails: {
-            checkoutReviewReturnUrl: 'http://example.com/review'
+        :webCheckoutDetails => {
+            :checkoutReviewReturnUrl => 'http://example.com/review'
         },
-        storeId: 'amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        :storeId => 'amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     }
 ```
 
@@ -49,13 +59,13 @@ Example 1: Create Checkout Session (http://amazonpaycheckoutintegrationguide.s3.
 
 ```ruby
     response = client.api_call ("checkoutSessions", "POST",
-        payload: {
-            webCheckoutDetails: {
-                checkoutReviewReturnUrl: "https://example.com/review"
+        :payload => {
+            :webCheckoutDetails => {
+                :checkoutReviewReturnUrl => "https://example.com/review"
             },
-            storeId: "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            :storeId => "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         },
-        headers: {'x-amz-pay-idempotency-key': SecureRandom.hex(10)}
+        :headers => {'x-amz-pay-idempotency-key' => SecureRandom.hex(10)}
     )
 ```
 
@@ -67,12 +77,12 @@ Example 2: Get Checkout Session (http://amazonpaycheckoutintegrationguide.s3.ama
 =end
 
 require 'openssl'
+require 'open3'
 
 require 'net/http'
 require 'time'
 require 'json'
 require 'base64'
-require 'open3' #if RUBY_VERSION < '2.3'
 
 class AmazonPayClient
 

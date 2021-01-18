@@ -12,9 +12,9 @@ end
 end
 
 open __dir__ + '/privateKey.pem', 'w' do |f|
-    f.write <<-FINISH
+    f.write <<-EOS
 -----BEGIN RSA PRIVATE KEY-----
 PASTE YOUR PRIVATE KEY HERE!
 -----END RSA PRIVATE KEY-----
-    FINISH
+    EOS
 end

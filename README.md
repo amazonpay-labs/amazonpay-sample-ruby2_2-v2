@@ -2,10 +2,18 @@
 下記Amazon Pay v2の、Ruby版サンプルアプリケーションです。  
 http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/introduction.html
 
-## 動作環境
-Ruby 2.3.0 以上  
-Note: 2.5.0 未満の場合、「openssl」のGemを下記指示にしたがって更新する必要があります。  
-https://github.com/ruby/openssl  
+## 動作条件
+Ruby version: 2.0.0 〜 2.2.10  
+※ 2.3.0以上の方は[こちら](https://github.com/amazonpay-labs/amazonpay-sample-ruby-v2).  
+
+OpenSSL: 下記のコマンドを実行が成功すること.
+```sh
+% echo 'Test' | openssl dgst -sha256 -sign '#{privateKeyFile}' -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:20
+XXXXXXXXXXXX.....
+```
+Note1: '#{privateKeyFile}' → SellerCentralで取得したprivate keyファイルのパス  
+Note2: このコマンドはバイナリデータを返すため、成功すると文字化けしたように見える結果が表示される  
+実行に失敗した場合には、opensslを更新する.  
 
 ## 概要
 本アプリケーションでは、下記のようにAmazon Payでの単純な購入フローを実行するサンプルを提供しています。  
@@ -17,10 +25,10 @@ https://github.com/ruby/openssl
 ### リポジトリのclone
 本リポジトリをcloneします。  
 ```sh
-git clone https://github.com/amazonpay-labs/amazonpay-sample-ruby-v2.git
+git clone https://github.com/amazonpay-labs/amazonpay-sample-ruby2_2-v2.git
 
 # cloneしたリポジトリへ移動
-cd amazonpay-sample-ruby-v2
+cd amazonpay-sample-ruby2_2-v2
 ```
 
 ### Seller Centralでのアプリケーション作成・設定
@@ -34,28 +42,16 @@ keysディレクトリ配下に、下記のファイルが生成されます。
   - privateKey.pem  
 
 [Seller Central](https://sellercentral.amazon.co.jp/)にて、本サンプル用にアプリケーションを用意し、[こちら](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/get-set-up-for-integration.html#4-get-your-public-key-id)を参考に、Merchant ID, Public Key ID, Store ID, Private Keyを取得し、それぞれ下記にコピーします。
-  * Merchant ID: keys/keyinfo.rb の merchant_id
-  * Public Key ID: keys/keyinfo.rb の public_key_id
-  * Store ID: keys/keyinfo.rb の store_id
+  * Merchant ID: keys/keyinfo.rb の MERCHANT_ID
+  * Public Key ID: keys/keyinfo.rb の PUBLIC_KEY_ID
+  * Store ID: keys/keyinfo.rb の STORE_ID
   * Private Key: keys/privateKey.pem
 
 ### 依存モジュールのインストール
-本ディレクトリにて、下記のコマンドを実行して依存モジュールをインストールします。
+本ディレクトリにて、RubyGemsを使用して下記のコマンドを実行し、依存モジュールをインストールします。
 
-#### Bundlerを使用する場合
 ```sh
-bundle install
-```
-
-#### RubyGemsを使用する場合
-```sh
-# 注意！ ↓↓↓ Rubyのバージョンが2.5.0未満の場合のみ ↓↓↓
-gem install openssl
-# 注意！ ↑↑↑ Rubyのバージョンが2.5.0未満の場合のみ ↑↑↑
-# また、https://github.com/ruby/openssl にも書かれている通り、2.3の場合には更にソースで「gem 'openssl'」を実行してgemを有効化する必要もあります。
-# 本アプリケーションでは、libs/signature.rbのコードの先頭でこの処理を実行しています。
-
-gem install sinatra
+gem install sinatra -v 1.4.8
 ```
 
 ## サーバーの起動
@@ -85,10 +81,10 @@ Amazon Pay APIの呼出方法を示したサンプルで、コード部分が約
 最初に、下記のようにAmazonPayClientをインスタンス化します。:  
 ```ruby
     client = AmazonPayClient.new {
-        public_key_id: 'XXXXXXXXXXXXXXXXXXXXXXXX', # SellerCentralで取得したpublick key ID
-        private_key: File.read('./privateKey.pem'), # SellerCentralで取得したprivate key
-        region: 'jp', # 'na', 'eu', 'jp'が指定できます
-        sandbox: true
+        :public_key_id => 'XXXXXXXXXXXXXXXXXXXXXXXX', # SellerCentralで取得したpublick key ID
+        :private_key_path => './keys/privateKey.pem', # SellerCentralで取得したprivate keyファイルへのパス
+        :region => 'jp', # 'na', 'eu', 'jp'が指定できます
+        :sandbox => true
     }
 ```
 
@@ -101,10 +97,10 @@ Amazon Pay APIの呼出方法を示したサンプルで、コード部分が約
 例:  
 ```ruby
     signature = client.generate_button_signature {
-        webCheckoutDetails: {
-            checkoutReviewReturnUrl: 'http://example.com/review'
+        :webCheckoutDetails => {
+            :checkoutReviewReturnUrl => 'http://example.com/review'
         },
-        storeId: 'amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        :storeId => 'amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     }
 ```
 
@@ -122,13 +118,13 @@ Amazon Pay APIの呼出方法を示したサンプルで、コード部分が約
 
 ```ruby
     response = client.api_call ("checkoutSessions", "POST",
-        payload: {
-            webCheckoutDetails: {
-                checkoutReviewReturnUrl: "https://example.com/review"
+        :payload => {
+            :webCheckoutDetails => {
+                :checkoutReviewReturnUrl => "https://example.com/review"
             },
-            storeId: "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            :storeId => "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         },
-        headers: {'x-amz-pay-idempotency-key': SecureRandom.hex(10)}
+        :headers => {'x-amz-pay-idempotency-key' => SecureRandom.hex(10)}
     )
 ```
 

@@ -1,0 +1,8 @@
+keys/keyinfo.rb
+keys/privateKey.pem
+
+# others
+*.swp
+!.gitkeep
+.DS_Store
+Thumbs.db
